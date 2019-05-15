@@ -16,7 +16,7 @@ import pandas as pd
 import math
 from sklearn.metrics import mean_squared_error, explained_variance_score
 from sklearn.svm import SVR
-from sklearn.model_selection import cross_val_predict, KFold
+from sklearn.model_selection import cross_val_predict, KFold, LeaveOneOut
 from sklearn.linear_model import LinearRegression, RANSACRegressor
 import warnings
 warnings.filterwarnings('ignore')
@@ -25,7 +25,7 @@ warnings.filterwarnings('ignore')
 
 
 def functions():
-    print('Bean Statistical Library functions','\n','-'*140,'\n', 'ttest(): Needs arguments X and Y' , '\n' ,'mannwhitneyu(): Needs arguments X and Y' , '\n' ,'levene(): Levene test for homogenetiy, Need argument X', '\n', 'shapiro(): Shapiro test for normalicy, Needs argument X', '\n', 'ols(): OLS linear regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking ', '\n', 'RLM(): Robust regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking', '\n', 'whichtest(): returns if a parametric or non parametric test should be used','\n', 'difference(): similar to whichtest but will perform an indepdent t test or mannwhitney U dependent upon test results','\n','-'*140)
+    print('Bean Statistical Library functions','\n','-'*140,'\n', 'ttest(): Needs arguments X and Y' , '\n' ,'mannwhitneyu(): Needs arguments X and Y' , '\n' ,'levene(): Levene test for homogenetiy, Need argument X', '\n', 'shapiro(): Shapiro test for normalicy, Needs argument X', '\n', 'ols(): OLS linear regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking ', '\n', 'RLM(): Robust regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking', '\n', 'whichtest(): returns if a parametric or non parametric test should be used','\n', 'difference(): similar to whichtest but will perform an indepdent t test or mannwhitney U dependent upon test results','\n','loools: leave one out ols regression, takes, target, features, guess wiith output if model_print=True','\n','-'*140)
 
 
 
@@ -186,5 +186,28 @@ def linear(target, features, guess, splits=10, random_state=0, model_print=False
         print('\n')
     elif model_print==True:
             print ('\n','Predicitions:' '\n', model,'\n')
+    else:
+         raise NameError ('Needs True or False')
+
+def loools(target, features, guess, model_print=False):
+    ols =LinearRegression()
+    loo= LeaveOneOut()
+    loo.get_n_splits(features)
+    for train_index, test_index in loo.split(features):
+       
+       X_train, X_test = features[train_index], features[test_index]
+       y_train, y_test = target[train_index], target[test_index]
+       ols.fit(X_test, y_test)
+    model= ols.predict(guess)
+    y_pred= cross_val_predict(ols, features, target)
+    print('Variance Score:', explained_variance_score(target, y_pred), '\n')
+    mse=  mean_squared_error(target, y_pred)
+    print('Mean Squared error :', mse, '\n')
+    print('Root Mean Squared Error :' ,math.sqrt(mse), '\n')
+  
+    if model_print ==False:
+        print('\n')
+    elif model_print==True:
+        print ('\n','Predicitions:' '\n', model,'\n')
     else:
          raise NameError ('Needs True or False')

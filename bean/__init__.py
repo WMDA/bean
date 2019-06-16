@@ -2,4 +2,4 @@
 # -*- coding: utf-8 -*-
 
 
-from .Bean import *
+from .bean import *

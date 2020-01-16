@@ -10,13 +10,14 @@ based on anaconda
 
 from scipy import stats
 import statsmodels.api as sm
+from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import r2_score
 import pandas as pd
 import math
 from sklearn.metrics import mean_squared_error, explained_variance_score
 from sklearn.svm import SVR
-from sklearn.model_selection import cross_val_predict, KFold
+from sklearn.model_selection import cross_val_predict, KFold, LeaveOneOut
 from sklearn.linear_model import LinearRegression, RANSACRegressor
 import warnings
 warnings.filterwarnings('ignore')
@@ -25,7 +26,7 @@ warnings.filterwarnings('ignore')
 
 
 def functions():
-    print('Bean Statistical Library functions','\n','-'*140,'\n', 'ttest(): Needs arguments X and Y' , '\n' ,'mannwhitneyu(): Needs arguments X and Y' , '\n' ,'levene(): Levene test for homogenetiy, Need argument X', '\n', 'shapiro(): Shapiro test for normalicy, Needs argument X', '\n', 'ols(): OLS linear regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking ', '\n', 'RLM(): Robust regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking', '\n', 'whichtest(): returns if a parametric or non parametric test should be used','\n', 'difference(): similar to whichtest but will perform an indepdent t test or mannwhitney U dependent upon test results','\n','-'*140)
+    print('Bean Statistical Library functions','\n','-'*140,'\n', 'ttest(): Needs arguments X and Y' , '\n' ,'mannwhitneyu(): Needs arguments X and Y' , '\n' ,'levene(): Levene test for homogenetiy, Need argument X', '\n', 'shapiro(): Shapiro test for normalicy, Needs argument X', '\n', 'ols(): OLS linear regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking ', '\n', 'RLM(): Robust regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking', '\n', 'whichtest(): returns if a parametric or non parametric test should be used','\n', 'difference(): similar to whichtest but will perform an indepdent t test or mannwhitney U dependent upon test results','\n','loools: leave one out ols regression, takes, target, features, guess wiith output if model_print=True','\n','-'*140)
 
 
 
@@ -65,6 +66,23 @@ def difference(x, y):
        stat5, p5 = stats.mannwhitneyu(x, y)
        print('Used  mann-whitney-U, based upon testing','\n',' Mann-Whitney U:' ,'\n', 'Statsistic= %.3f,' ' p= %.3f' % (stat5, p5),'\n')    
 
+
+def ANOVA(Indyvariable, dependent, df, verbose=False):
+    if verbose==False:
+        results = ols('{Indyvariable} ~ {dependent}'.format(Indyvariable=Indyvariable,dependent=dependent), data=df).fit()
+        aov_table= sm.stats.anova_lm(results, typ=2)
+        def anova_table(aov):
+            aov['mean_sq'] = aov[:]['sum_sq']/aov[:]['df']
+            aov['eta_sq'] = aov[:-1]['sum_sq']/sum(aov['sum_sq'])
+            aov['omega_sq'] = (aov[:-1]['sum_sq']-(aov[:-1]['df']*aov['mean_sq'][-1]))/(sum(aov['sum_sq'])+aov['mean_sq'][-1])
+            cols = ['sum_sq', 'df', 'mean_sq', 'F', 'PR(>F)', 'eta_sq', 'omega_sq']
+            aov = aov[cols]
+            return aov
+        results= anova_table(aov_table)
+        print(results)
+        return results
+    else:
+        print('One Way ANOVA based on statsmodel. Needs independent and dependent variable in string. Prints out ANOVA table, however if assigned to a varable will return ANOVA table')
 '''
 Linear regression
 '''
@@ -186,5 +204,28 @@ def linear(target, features, guess, splits=10, random_state=0, model_print=False
         print('\n')
     elif model_print==True:
             print ('\n','Predicitions:' '\n', model,'\n')
+    else:
+         raise NameError ('Needs True or False')
+
+def loools(target, features, guess, model_print=False):
+    ols =LinearRegression()
+    loo= LeaveOneOut()
+    loo.get_n_splits(features)
+    for train_index, test_index in loo.split(features):
+       
+       X_train, X_test = features[train_index], features[test_index]
+       y_train, y_test = target[train_index], target[test_index]
+       ols.fit(X_test, y_test)
+    model= ols.predict(guess)
+    y_pred= cross_val_predict(ols, features, target)
+    print('Variance Score:', explained_variance_score(target, y_pred), '\n')
+    mse=  mean_squared_error(target, y_pred)
+    print('Mean Squared error :', mse, '\n')
+    print('Root Mean Squared Error :' ,math.sqrt(mse), '\n')
+  
+    if model_print ==False:
+        print('\n')
+    elif model_print==True:
+        print ('\n','Predicitions:' '\n', model,'\n')
     else:
          raise NameError ('Needs True or False')

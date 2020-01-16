@@ -10,6 +10,7 @@ based on anaconda
 
 from scipy import stats
 import statsmodels.api as sm
+from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import r2_score
 import pandas as pd
@@ -64,6 +65,7 @@ def difference(x, y):
     else:
        stat5, p5 = stats.mannwhitneyu(x, y)
        print('Used  mann-whitney-U, based upon testing','\n',' Mann-Whitney U:' ,'\n', 'Statsistic= %.3f,' ' p= %.3f' % (stat5, p5),'\n')    
+
 
 def ANOVA(Indyvariable, dependent, df, verbose=False):
     if verbose==False:

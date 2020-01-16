@@ -10,6 +10,7 @@ based on anaconda
 
 from scipy import stats
 import statsmodels.api as sm
+from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import r2_score
 import pandas as pd
@@ -65,6 +66,22 @@ def difference(x, y):
        stat5, p5 = stats.mannwhitneyu(x, y)
        print('Used  mann-whitney-U, based upon testing','\n',' Mann-Whitney U:' ,'\n', 'Statsistic= %.3f,' ' p= %.3f' % (stat5, p5),'\n')    
 
+def ANOVA(Indyvariable, dependent, verbose=False):
+    if verbose==False:
+        results = ols('{Indyvariable} ~ {dependent}'.format(Indyvariable=Indyvariable,dependent=dependent), data=df).fit()
+        aov_table= sm.stats.anova_lm(results, typ=2)
+        def anova_table(aov):
+            aov['mean_sq'] = aov[:]['sum_sq']/aov[:]['df']
+            aov['eta_sq'] = aov[:-1]['sum_sq']/sum(aov['sum_sq'])
+            aov['omega_sq'] = (aov[:-1]['sum_sq']-(aov[:-1]['df']*aov['mean_sq'][-1]))/(sum(aov['sum_sq'])+aov['mean_sq'][-1])
+            cols = ['sum_sq', 'df', 'mean_sq', 'F', 'PR(>F)', 'eta_sq', 'omega_sq']
+            aov = aov[cols]
+            return aov
+        results= anova_table(aov_table)
+        print(results)
+        return results
+    else:
+        print('One Way ANOVA based on statsmodel. Needs independent and dependent variable in string. Prints out ANOVA table, however if assigned to a varable will return ANOVA table')
 '''
 Linear regression
 '''

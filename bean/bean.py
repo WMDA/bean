@@ -83,6 +83,17 @@ def ANOVA(Indyvariable, dependent, df, verbose=False):
         return results
     else:
         print('One Way ANOVA based on statsmodel. Needs independent and dependent variable in string. Prints out ANOVA table, however if assigned to a varable will return ANOVA table')
+
+def kruskal(x,y,z):
+    number_of_observations = len(pd.concat([x,y,z]))
+    number_of_groups = len([x, y, z] )
+    h,p = stats.kruskal(x,y,z)
+    degrees_of_freedom=(number_of_observations-number_of_groups)-(number_of_groups)
+    eta = (h-number_of_groups+1)/(number_of_observations-number_of_groups)
+    epsilon  = h/((number_of_observations**2-1)/(number_of_observations+1))
+    print('Kruskal test statistic: ', h,'\n','P Value: ', p,'\n','eta value: ', eta, '\n','epsilon  value: ', epsilon,'\n Degrees of Freedom: ',degrees_of_freedom)
+
+
 '''
 Linear regression
 '''
@@ -91,7 +102,7 @@ def ols(target, covariates):
     model = sm.OLS(target, covariates).fit()
     predictions = model.predict(covariates)
     print(model.summary())
-    residual = sm.regression.linear_model.RegressionResults.resid(model)
+    residual = model.resid
     lm, lm_p, fvalue, f_pvalue = sm.stats.diagnostic.het_breuschpagan(residual, covariates)
     print('\n','Heteroskedasticity', '\n', 'lagrange multiplier statistic = %.3f , p= %.3f , F value= %.3f, p value for f value = %.3f' % (lm, lm_p, fvalue, f_pvalue),'\n')
     k2, p =stats.normaltest(residual)
@@ -107,7 +118,7 @@ def RLM(target, covariates,):
     model = sm.RLM(target, covariates).fit()
     predictions = model.predict(covariates)
     print(model.summary())
-    residual = sm.regression.linear_model.RegressionResults.resid(model)
+    residual = model.resid
     lm, lm_p, fvalue, f_pvalue = sm.stats.diagnostic.het_breuschpagan(residual, covariates)
     print('\n','Heteroskedasticity', '\n', 'lagrange multiplier statistic = %.3f , p= %.3f , F value= %.3f, p value for f value = %.3f' % (lm, lm_p, fvalue, f_pvalue),'\n')
     k2, p =stats.normaltest(residual)

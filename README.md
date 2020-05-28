@@ -1,6 +1,6 @@
-#bean
+# bean
 
-##Installing
+## Installing
 
 Clone repository
 ```

@@ -1,0 +1,9 @@
+README.md
+setup.py
+bean/__init__.py
+bean/bean.py
+bean.egg-info/PKG-INFO
+bean.egg-info/SOURCES.txt
+bean.egg-info/dependency_links.txt
+bean.egg-info/requires.txt
+bean.egg-info/top_level.txt

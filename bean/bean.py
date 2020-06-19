@@ -3,13 +3,13 @@
 """
 ========================
 Bean Statistical libary
-based on anaconda
 =======================
 """
 
 
 from scipy import stats
 import statsmodels.api as sm
+from statsmodels.stats import multitest
 from statsmodels.formula.api import ols
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import r2_score
@@ -28,8 +28,6 @@ warnings.filterwarnings('ignore')
 def functions():
     print('Bean Statistical Library functions','\n','-'*140,'\n', 'ttest(): Needs arguments X and Y' , '\n' ,'mannwhitneyu(): Needs arguments X and Y' , '\n' ,'levene(): Levene test for homogenetiy, Need argument X', '\n', 'shapiro(): Shapiro test for normalicy, Needs argument X', '\n', 'ols(): OLS linear regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking ', '\n', 'RLM(): Robust regression, Needs a target(deoendent variable) and Covariates (Independent variables), returns regression and assumption checking', '\n', 'whichtest(): returns if a parametric or non parametric test should be used','\n', 'difference(): similar to whichtest but will perform an indepdent t test or mannwhitney U dependent upon test results','\n','loools: leave one out ols regression, takes, target, features, guess wiith output if model_print=True','\n','-'*140)
 
-
-
 def ttest(x, y):
     stat, p = stats.ttest_ind(x, y)
     print('Independent samples t test:  ', '\n' 'T-value= %.3f ,' 'p= %.3f' % (stat, p),'\n')
@@ -37,7 +35,7 @@ def ttest(x, y):
 def mannwhitneyu (x, y):
     stat, p = stats.mannwhitneyu(x, y)
     print('Mann-Whitney U:' ,'\n', 'Statistics= %.3f ,' 'p= %.3f' % (stat, p),'\n')
-    
+
 def levene(x, y):
     stat, p = stats.levene(x, y)
     print('Levene test for Homogeneity:  ' '\n' 'Statistics= %.3f ,' 'p= %.3f' % (stat, p),'\n')
@@ -54,17 +52,17 @@ def whichtest(x, y):
         print('Use parametric test')
     else:
         print('Use non Parametric test')
- 
+
 def difference(x, y):
     stat1, p1=  stats.levene(x, y)
     stat2, p2 = stats.shapiro(x)
     stat3, p3 =stats.shapiro(y)
     if p1 and p1 and p3 >0.05:
         stat4, p4 = stats.ttest_ind(x, y)
-        print('Used Independent T-Test, based upon testing','\n',' Indepndent Sample Test:' ,'\n', 'T-Statsistic= %.3f,' ' p= %.3f' % (stat4, p4),'\n')    
+        print('Used Independent T-Test, based upon testing','\n',' Indepndent Sample Test:' ,'\n', 'T-Statsistic= %.3f,' ' p= %.3f' % (stat4, p4),'\n')
     else:
        stat5, p5 = stats.mannwhitneyu(x, y)
-       print('Used  mann-whitney-U, based upon testing','\n',' Mann-Whitney U:' ,'\n', 'Statsistic= %.3f,' ' p= %.3f' % (stat5, p5),'\n')    
+       print('Used  mann-whitney-U, based upon testing','\n',' Mann-Whitney U:' ,'\n', 'Statsistic= %.3f,' ' p= %.3f' % (stat5, p5),'\n')
 
 
 def ANOVA(Indyvariable, dependent, df, verbose=False):
@@ -93,6 +91,18 @@ def kruskal(x,y,z):
     epsilon  = h/((number_of_observations**2-1)/(number_of_observations+1))
     print('Kruskal test statistic: ', h,'\n','P Value: ', p,'\n','eta value: ', eta, '\n','epsilon  value: ', epsilon,'\n Degrees of Freedom: ',degrees_of_freedom)
 
+def correlation(column, array, volume, verbose=False, pvals=False):
+    pvalues=[]
+    for i in column.columns:
+        corr_array=pd.concat([array[volume], column[i]],axis=1).dropna()
+        c, p =stats.spearmanr(corr_array[volume], corr_array[i])
+        pvalues.append(p)
+        if verbose ==True:
+            print(c)
+    if pvals==True:
+        print(pvalues)
+    corrp=multitest.multipletests(pvalues)
+    return corrp
 
 '''
 Linear regression
@@ -146,14 +156,14 @@ def radsvr(target, features, guess, splits=10, random_state=0, model_print=False
     mse=  mean_squared_error(target, y_pred)
     print('Mean Squared error :', mse, '\n')
     print('Root Mean Squared Error :' ,math.sqrt(mse))
-    
+
     if model_print ==False:
         print('\n')
     elif model_print==True:
             print ('\n','Predicitions:' '\n', model,'\n')
     else:
          raise NameError ('Needs True or False')
-        
+
 
 
 def linearsvr(target, features, guess, splits=10, random_state=0, model_print=False, shuffle=False):
@@ -168,14 +178,14 @@ def linearsvr(target, features, guess, splits=10, random_state=0, model_print=Fa
     mse=  mean_squared_error(target, y_pred)
     print('Mean Squared error :', mse, '\n')
     print('Root Mean Squared Error :' ,math.sqrt(mse))
-    
+
     if model_print ==False:
         print('\n')
     elif model_print==True:
             print ('\n','Predicitions:' '\n', model,'\n')
     else:
          raise NameError ('Needs True or False')
-         
+
 
 def polysvr(target, features, guess, splits=10, random_state=0, model_print=False, shuffle=False):
     best_svr =SVR(kernel='poly')
@@ -189,14 +199,14 @@ def polysvr(target, features, guess, splits=10, random_state=0, model_print=Fals
     mse=  mean_squared_error(target, y_pred)
     print('Mean Squared error :', mse, '\n')
     print('Root Mean Squared Error :' ,math.sqrt(mse))
-    
+
     if model_print ==False:
         print('\n')
     elif model_print==True:
             print ('\n','Predicitions:' '\n', model,'\n')
     else:
          raise NameError ('Needs True or False')
-         
+
 
 def linear(target, features, guess, splits=10, random_state=0, model_print=False, shuffle=False):
     ols =LinearRegression()
@@ -210,7 +220,7 @@ def linear(target, features, guess, splits=10, random_state=0, model_print=False
     mse=  mean_squared_error(target, y_pred)
     print('Mean Squared error :', mse, '\n')
     print('Root Mean Squared Error :' ,math.sqrt(mse))
-    
+
     if model_print ==False:
         print('\n')
     elif model_print==True:
@@ -223,7 +233,7 @@ def loools(target, features, guess, model_print=False):
     loo= LeaveOneOut()
     loo.get_n_splits(features)
     for train_index, test_index in loo.split(features):
-       
+
        X_train, X_test = features[train_index], features[test_index]
        y_train, y_test = target[train_index], target[test_index]
        ols.fit(X_test, y_test)
@@ -233,7 +243,7 @@ def loools(target, features, guess, model_print=False):
     mse=  mean_squared_error(target, y_pred)
     print('Mean Squared error :', mse, '\n')
     print('Root Mean Squared Error :' ,math.sqrt(mse), '\n')
-  
+
     if model_print ==False:
         print('\n')
     elif model_print==True:

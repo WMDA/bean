@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 25 14:01:50 2021
-
-@author: wmda
+OLS regression based on statsmodel.api
 """
 
 import pandas as pd

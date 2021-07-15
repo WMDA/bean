@@ -6,7 +6,26 @@ Home-page: https://github.com/WMDA/bean.git
 Author: WMDA
 Author-email: 
 License: MIT license
-Description: More to follow
+Description: # bean
+        
+        ## Installing
+        
+        Clone repository
+        ```
+        git clone https://github.com/WMDA/bean 
+        ```
+        Consider using a virtual env
+        
+        ```
+        python -m venv venv
+        ```
+        
+        Install package using pip system
+        
+        ```
+        pip install -e local path to repo/
+        ```
+        
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License

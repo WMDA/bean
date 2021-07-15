@@ -1,7 +1,7 @@
 README.md
 setup.py
 bean/__init__.py
-bean/bean.py
+bean/ols.py
 bean.egg-info/PKG-INFO
 bean.egg-info/SOURCES.txt
 bean.egg-info/dependency_links.txt
